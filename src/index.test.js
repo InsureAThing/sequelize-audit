@@ -30,9 +30,6 @@ describe('Sequelize Audit tests', () => {
   };
 
   describe('SQS init', () => {
-    it('init connectionString required', () => {
-      expect(() => new SequelizeAudit()).toThrow();
-    });
     it('sets up sqs with options', () => {
       const audit = new SequelizeAudit(defaultOptions);
       expect(audit.sqs).toBeDefined();

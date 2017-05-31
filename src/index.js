@@ -17,9 +17,6 @@ export default class SequelizeAudit {
     };
     // test
     const options = Object.assign({}, defaultOptions, opts);
-    if (!options.connectionString) throw new Error('ConnectionString required');
-
-    this.queueUrl = options.connectionString;
     this.sqs = sqs({
       access: options.awsAccessKey,
       secret: options.awsSecretKey,
