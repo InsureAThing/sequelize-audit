@@ -1,6 +1,6 @@
 {
   "name": "sequelize-audit-hooks",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Push Sequelize auditing messages to a SQS queue",
   "main": "lib/index.js",
   "scripts": {
