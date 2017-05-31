@@ -31,12 +31,6 @@ export default class SequelizeAudit {
     this.buildLoggerPacket = this.buildLoggerPacket.bind(this);
   }
   audit(serviceName, type, model, options) {
-    // topic: kafkaTopic,
-    //   partition: 0,
-    //   message: {
-    //     key: `${serviceName}_${type}`,
-    //     value: JSON.stringify(buildLoggerPacket(type, model, options)),
-    //   },
     return this.sqs.push(
       'auditing',
       this.buildLoggerPacket(serviceName, type, model, options)
