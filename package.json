@@ -1,7 +1,7 @@
 {
   "name": "sequelize-audit-hooks",
   "version": "0.0.13",
-  "description": "Push Sequelize auditing messages to a Kafka queue",
+  "description": "Push Sequelize auditing messages to a SQS queue",
   "main": "lib/index.js",
   "scripts": {
     "compile": "babel --presets env -d lib/ src/",
