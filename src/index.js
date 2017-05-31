@@ -1,5 +1,6 @@
 import logger from 'winston';
 import Producer from 'sqs-producer';
+import AWS from 'aws-sdk';
 import { createNamespace } from 'continuation-local-storage';
 const userContext = createNamespace('audit');
 export const setContext = context => {
@@ -13,14 +14,23 @@ export default class SequelizeAudit {
     const defaultOptions = {
       queueUrl: process.env.SQS_QUEUE_URL,
       awsRegion: process.env.AWS_REGION,
+      awsAccessKey: process.env.AWS_ACCESS_KEY,
+      awsSecretKey: process.env.AWS_SECRET_KEY,
     };
     // test
     const options = Object.assign({}, defaultOptions, opts);
     if (!options.queueUrl) throw new Error('QueueUrl required');
 
+    AWS.config.update({
+      region: options.awsRegion,
+      accessKeyId: options.awsAccessKey,
+      secretAccessKey: options.awsSecretKey,
+    });
+
     this.producer = Producer.create({
       queueUrl: options.queueUrl,
       region: options.awsRegion,
+      sqs: new AWS.SQS(),
     });
 
     this.audit = this.audit.bind(this);
