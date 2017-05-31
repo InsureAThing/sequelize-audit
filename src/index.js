@@ -1,5 +1,5 @@
 import logger from 'winston';
-import sqs from 'sqs';
+import Producer from 'sqs-producer';
 import { createNamespace } from 'continuation-local-storage';
 const userContext = createNamespace('audit');
 export const setContext = context => {
@@ -11,15 +11,15 @@ export const getNamespace = () => userContext;
 export default class SequelizeAudit {
   constructor(opts) {
     const defaultOptions = {
-      awsAccessKey: process.env.AWS_ACCESS_KEY,
-      awsSecretKey: process.env.AWS_SECRET_KEY,
+      queueUrl: process.env.SQS_QUEUE_URL,
       awsRegion: process.env.AWS_REGION,
     };
     // test
     const options = Object.assign({}, defaultOptions, opts);
-    this.sqs = sqs({
-      access: options.awsAccessKey,
-      secret: options.awsSecretKey,
+    if (!options.queueUrl) throw new Error('QueueUrl required');
+
+    this.producer = Producer.create({
+      queueUrl: options.queueUrl,
       region: options.awsRegion,
     });
 
@@ -28,9 +28,18 @@ export default class SequelizeAudit {
     this.buildLoggerPacket = this.buildLoggerPacket.bind(this);
   }
   audit(serviceName, type, model, options) {
-    return this.sqs.push(
-      'auditing',
-      this.buildLoggerPacket(serviceName, type, model, options)
+    return this.producer.send(
+      [
+        {
+          id: `${serviceName}_${type}`,
+          body: JSON.stringify(
+            this.buildLoggerPacket(serviceName, type, model, options)
+          ),
+        },
+      ],
+      err => {
+        if (err) logger.error(err);
+      }
     );
   }
   buildLoggerPacket(serviceName, type, model, options) {

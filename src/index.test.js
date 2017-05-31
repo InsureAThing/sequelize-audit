@@ -1,8 +1,10 @@
 const mockPush = jest.fn();
-jest.mock('sqs', () => {
-  return () => ({
-    push: mockPush,
-  });
+jest.mock('sqs-producer', () => {
+  return {
+    create: () => ({
+      send: mockPush,
+    }),
+  };
 });
 import SequelizeAudit, { getNamespace, setContext } from './index';
 
@@ -24,7 +26,7 @@ describe('Sequelize Audit tests', () => {
   };
 
   const defaultOptions = {
-    connectionString: 'sqs-connection',
+    queueUrl: 'sqs-connection',
     awsAccessKey: 'mock',
     awsSecretKey: 'mock-secret',
   };
@@ -32,7 +34,7 @@ describe('Sequelize Audit tests', () => {
   describe('SQS init', () => {
     it('sets up sqs with options', () => {
       const audit = new SequelizeAudit(defaultOptions);
-      expect(audit.sqs).toBeDefined();
+      expect(audit.producer).toBeDefined();
     });
   });
 
@@ -44,10 +46,11 @@ describe('Sequelize Audit tests', () => {
     const hooks = audit.generateHooks('testService');
     hooks.afterUpdate(testModel, {});
     expect(mockPush).toHaveBeenCalled();
-    expect(mockPush.mock.calls[0][1]).toMatchObject({
-      service: 'testService',
-      type: 'update',
-    });
+    expect(mockPush.mock.calls[0][0]).toContainEqual(
+      expect.objectContaining({
+        id: 'testService_update',
+      })
+    );
   });
 
   it('afterCreate calls audit function', () => {
@@ -55,10 +58,11 @@ describe('Sequelize Audit tests', () => {
     const hooks = audit.generateHooks('testService');
     hooks.afterCreate(testModel, {});
     expect(mockPush).toHaveBeenCalled();
-    expect(mockPush.mock.calls[0][1]).toMatchObject({
-      service: 'testService',
-      type: 'create',
-    });
+    expect(mockPush.mock.calls[0][0]).toContainEqual(
+      expect.objectContaining({
+        id: 'testService_create',
+      })
+    );
   });
 
   it('afterDelete calls audit function', () => {
@@ -66,10 +70,11 @@ describe('Sequelize Audit tests', () => {
     const hooks = audit.generateHooks('testService');
     hooks.afterDelete(testModel, {});
     expect(mockPush).toHaveBeenCalled();
-    expect(mockPush.mock.calls[0][1]).toMatchObject({
-      service: 'testService',
-      type: 'delete',
-    });
+    expect(mockPush.mock.calls[0][0]).toContainEqual(
+      expect.objectContaining({
+        id: 'testService_delete',
+      })
+    );
   });
 
   it('Gets user from context', () => {
@@ -81,10 +86,12 @@ describe('Sequelize Audit tests', () => {
       const hooks = audit.generateHooks('testService');
       hooks.afterUpdate(testModel, {});
       expect(mockPush).toHaveBeenCalled();
-      expect(mockPush.mock.calls[0][1]).toMatchObject({
-        service: 'testService',
-        userId: '1234',
-      });
+      expect(mockPush.mock.calls[0][0]).toContainEqual(
+        expect.objectContaining({
+          id: 'testService_update',
+          body: expect.stringMatching(`"userId":"1234"`),
+        })
+      );
     });
   });
 });
