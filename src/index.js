@@ -1,7 +1,9 @@
 import logger from 'winston';
 import Producer from 'sqs-producer';
 import AWS from 'aws-sdk';
+import { diff } from 'deep-diff';
 import { createNamespace } from 'continuation-local-storage';
+
 const userContext = createNamespace('audit');
 export const setContext = context => {
   userContext.set('context', context);
@@ -55,12 +57,13 @@ export default class SequelizeAudit {
   buildLoggerPacket(serviceName, type, model, options) {
     const user = userContext.get('context');
 
+    const deepDiff = diff(model._previousValues, model.dataValues);
+
     return {
       timestamp: new Date().toISOString(),
       type,
       entityId: model.id,
-      previousValues: model._previousDataValues,
-      currentValues: model.dataValues,
+      difference: deepDiff,
       fields: options.fields,
       service: serviceName,
       entity: model.$modelOptions.name.singular,
