@@ -11,7 +11,7 @@ import SequelizeAudit, { getNamespace, setContext } from './index';
 describe('Sequelize Audit tests', () => {
   const testModel = {
     id: 'Hello',
-    _previousValues: {
+    _previousDataValues: {
       id: 'Was Hello',
     },
     dataValues: {

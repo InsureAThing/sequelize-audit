@@ -15,7 +15,7 @@ export default class SequelizeAudit {
   constructor(opts) {
     const defaultOptions = {
       queueUrl: process.env.SQS_QUEUE_URL,
-      awsRegion: process.env.AWS_REGION,
+      awsRegion: process.env.AWS_REGION || opts.region,
       awsAccessKey: process.env.AWS_ACCESS_KEY,
       awsSecretKey: process.env.AWS_SECRET_KEY,
     };
@@ -57,14 +57,18 @@ export default class SequelizeAudit {
   buildLoggerPacket(serviceName, type, model, options) {
     const user = userContext.get('context');
 
-    const deepDiff = diff(model._previousValues, model.dataValues);
+    const previousValues = JSON.parse(
+      JSON.stringify(model._previousDataValues)
+    );
+    const currentValues = JSON.parse(JSON.stringify(model.dataValues));
+    const deepDiff = diff(previousValues || {}, currentValues || {});
 
     return {
       timestamp: new Date().toISOString(),
       type,
       entityId: model.id,
       difference: deepDiff,
-      fields: options.fields,
+      fields: model._changed ? Object.keys(model._changed) : options.fields,
       service: serviceName,
       entity: model.$modelOptions.name.singular,
       userId: user ? user.id : null,
