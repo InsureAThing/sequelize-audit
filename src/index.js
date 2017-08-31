@@ -44,6 +44,12 @@ export default class SequelizeAudit {
       [
         {
           id: `${serviceName}_${type}`,
+          messageAttributes: {
+            routingKey: {
+              DataType: 'String',
+              StringValue: 'auditing',
+            }
+          },
           body: JSON.stringify(
             this.buildLoggerPacket(serviceName, type, model, options)
           ),

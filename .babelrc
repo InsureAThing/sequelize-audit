@@ -12,5 +12,5 @@
   "ignore": [
     "node_modules/",
     "out/"
-  ]
+  ],
 }
