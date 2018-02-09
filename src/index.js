@@ -19,7 +19,6 @@ export default class SequelizeAudit {
       awsAccessKey: process.env.AWS_ACCESS_KEY,
       awsSecretKey: process.env.AWS_SECRET_KEY,
     };
-    // test
     const options = Object.assign({}, defaultOptions, opts);
     if (!options.queueUrl) throw new Error('QueueUrl required');
 
@@ -48,7 +47,7 @@ export default class SequelizeAudit {
             routingKey: {
               DataType: 'String',
               StringValue: 'auditing',
-            }
+            },
           },
           body: JSON.stringify(
             this.buildLoggerPacket(serviceName, type, model, options)
@@ -69,6 +68,7 @@ export default class SequelizeAudit {
     const currentValues = JSON.parse(JSON.stringify(model.dataValues));
     const deepDiff = diff(previousValues || {}, currentValues || {});
 
+    const modelOptions = model.$modelOptions || model._modelOptions;
     return {
       timestamp: new Date().toISOString(),
       type,
@@ -76,7 +76,7 @@ export default class SequelizeAudit {
       difference: deepDiff,
       fields: model._changed ? Object.keys(model._changed) : options.fields,
       service: serviceName,
-      entity: model.$modelOptions.name.singular,
+      entity: modelOptions.name.singular,
       userId: user ? user.id : null,
     };
   }
