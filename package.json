@@ -1,5 +1,5 @@
 {
-  "name": "sequelize-audit-hooks",
+  "name": "@laka/sequelize-audit-hooks",
   "version": "0.0.18",
   "description": "Push Sequelize auditing messages to a SQS queue",
   "main": "lib/index.js",
@@ -8,7 +8,7 @@
     "prepublish": "npm run compile",
     "test": "jest"
   },
-  "author": "Jack G <jack@insureathing.com>",
+  "author": "Jack G <jack@laka.co.uk>",
   "license": "MIT",
   "jest": {
     "verbose": true,
@@ -23,7 +23,7 @@
     "coverageDirectory": "./coverage"
   },
   "dependencies": {
-    "aws-sdk": "^2.59.0",
+    "aws-sdk": "^2.244.1",
     "continuation-local-storage": "^3.2.0",
     "deep-diff": "^0.3.8",
     "jest": "^20.0.4",

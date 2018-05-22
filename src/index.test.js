@@ -27,8 +27,6 @@ describe('Sequelize Audit tests', () => {
 
   const defaultOptions = {
     queueUrl: 'sqs-connection',
-    awsAccessKey: 'mock',
-    awsSecretKey: 'mock-secret',
   };
 
   describe('SQS init', () => {

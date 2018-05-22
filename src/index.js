@@ -15,18 +15,10 @@ export default class SequelizeAudit {
   constructor(opts) {
     const defaultOptions = {
       queueUrl: process.env.SQS_QUEUE_URL,
-      awsRegion: process.env.AWS_REGION || opts.region,
-      awsAccessKey: process.env.AWS_ACCESS_KEY,
-      awsSecretKey: process.env.AWS_SECRET_KEY,
     };
+
     const options = Object.assign({}, defaultOptions, opts);
     if (!options.queueUrl) throw new Error('QueueUrl required');
-
-    AWS.config.update({
-      region: options.awsRegion,
-      accessKeyId: options.awsAccessKey,
-      secretAccessKey: options.awsSecretKey,
-    });
 
     this.producer = Producer.create({
       queueUrl: options.queueUrl,
